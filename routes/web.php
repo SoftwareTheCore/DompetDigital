@@ -36,4 +36,3 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/mahasiswa/transfer', [MahasiswaController::class, 'transfer'])->name('mahasiswa.transfer');
     Route::post('/mahasiswa/withdraw', [MahasiswaController::class, 'withdraw'])->name('mahasiswa.withdraw');
 });
-

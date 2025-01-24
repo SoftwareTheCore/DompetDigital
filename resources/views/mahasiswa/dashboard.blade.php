@@ -21,6 +21,14 @@
     </nav>
 
     <div class="container mt-4">
+        <!-- Pesan Sukses/Error -->
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
+        @endif
+
         <!-- Saldo -->
         <div class="row mb-4">
             <div class="col-md-4">
@@ -35,27 +43,40 @@
 
         <!-- Fitur Transaksi -->
         <div class="row mb-4">
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="card">
-                    <div class="card-body text-center">
+                    <div class="card-body">
                         <h5 class="card-title">Top Up</h5>
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#topUpModal">Top Up</button>
+                        <form action="{{ route('mahasiswa.topup') }}" method="POST">
+                            @csrf
+                            <input type="number" name="amount" placeholder="Jumlah Top Up" min="10000" class="form-control mb-2" required>
+                            <button type="submit" class="btn btn-primary w-100">Top Up</button>
+                        </form>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="card">
-                    <div class="card-body text-center">
+                    <div class="card-body">
                         <h5 class="card-title">Transfer</h5>
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#transferModal">Transfer</button>
+                        <form action="{{ route('mahasiswa.transfer') }}" method="POST">
+                            @csrf
+                            <input type="email" name="to_email" placeholder="Email Penerima" class="form-control mb-2" required>
+                            <input type="number" name="amount" placeholder="Jumlah Transfer" min="10000" class="form-control mb-2" required>
+                            <button type="submit" class="btn btn-primary w-100">Transfer</button>
+                        </form>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <div class="card">
-                    <div class="card-body text-center">
+                    <div class="card-body">
                         <h5 class="card-title">Withdraw</h5>
-                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#withdrawModal">Withdraw</button>
+                        <form action="{{ route('mahasiswa.withdraw') }}" method="POST">
+                            @csrf
+                            <input type="number" name="amount" placeholder="Jumlah Withdraw" min="10000" class="form-control mb-2" required>
+                            <button type="submit" class="btn btn-primary w-100">Withdraw</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -80,21 +101,21 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($transaksi as $trans)
-                                    <tr>
-                                        <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $trans->created_at }}</td>
-                                        <td>{{ ucfirst($trans->type) }}</td>
-                                        <td>Rp {{ number_format($trans->amount, 2, ',', '.') }}</td>
-                                        <td>
-                                            @if ($trans->type == 'transfer')
-                                                Transfer ke {{ $trans->recipient->name ?? 'Tidak Diketahui' }}
-                                            @elseif ($trans->type == 'receive')
-                                                Diterima dari {{ $trans->user->name ?? 'Tidak Diketahui' }}
-                                            @else
-                                                {{ ucfirst($trans->type) }}
-                                            @endif
-                                        </td>
-                                    </tr>
+                                        <tr>
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $trans->created_at }}</td>
+                                            <td>{{ ucfirst($trans->type) }}</td>
+                                            <td>Rp {{ number_format($trans->amount, 2, ',', '.') }}</td>
+                                            <td>
+                                                @if ($trans->type == 'transfer')
+                                                    Transfer ke {{ $trans->recipient->name ?? 'Tidak Diketahui' }}
+                                                @elseif ($trans->type == 'receive')
+                                                    Diterima dari {{ $trans->user->name ?? 'Tidak Diketahui' }}
+                                                @else
+                                                    {{ ucfirst($trans->type) }}
+                                                @endif
+                                            </td>
+                                        </tr>
                                     @endforeach
                                 </tbody>
                             </table>
@@ -102,85 +123,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Modal Top Up -->
-    <div class="modal fade" id="topUpModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <form action="{{ route('mahasiswa.topup') }}" method="POST">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Top Up Saldo</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="amount" class="form-label">Jumlah</label>
-                            <input type="number" name="amount" class="form-control" min="1000" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Top Up</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Transfer -->
-    <div class="modal fade" id="transferModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <form action="{{ route('mahasiswa.transfer') }}" method="POST">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Transfer</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="recipient_email" class="form-label">Email Penerima</label>
-                            <input type="email" name="recipient_email" class="form-control" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="amount" class="form-label">Jumlah</label>
-                            <input type="number" name="amount" class="form-control" min="1000" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Transfer</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Modal Withdraw -->
-    <div class="modal fade" id="withdrawModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog">
-            <form action="{{ route('mahasiswa.withdraw') }}" method="POST">
-                @csrf
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Withdraw</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="amount" class="form-label">Jumlah</label>
-                            <input type="number" name="amount" class="form-control" min="1000" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Withdraw</button>
-                    </div>
-                </div>
-            </form>
         </div>
     </div>
 
