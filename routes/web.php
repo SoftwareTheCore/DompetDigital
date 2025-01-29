@@ -5,8 +5,14 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\MahasiswaController;
 
+// Home Page Route
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
+});
+
+// Route for /home
+Route::get('/home', function () {
+    return view('home');
 });
 
 // ROUTE LOGIN
@@ -17,7 +23,6 @@ Route::middleware(['guest'])->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
 });
 
-
 // ROUTE LOGOUT (dengan middleware auth)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
@@ -27,7 +32,6 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/admin/user/{id}', [AdminController::class, 'updateUser'])->name('admin.updateUser');
     Route::delete('/admin/user/{id}', [AdminController::class, 'deleteUser'])->name('admin.deleteUser');
 });
-
 
 // ROUTE MAHASISWA
 Route::middleware(['auth'])->group(function () {

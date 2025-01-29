@@ -9,8 +9,8 @@
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="#">Mahasiswa Dashboard</a>
-            <div class="ms-auto d-flex align-items-center">
+            <a class="navbar-brand" href="{{ url('/') }}">Mahasiswa Dashboard</a>        
+                <div class="ms-auto d-flex align-items-center">
                 <span class="text-white me-3">Selamat datang, <strong>{{ Auth::user()->name }}</strong></span>
                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                     @csrf

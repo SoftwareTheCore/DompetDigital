@@ -10,7 +10,7 @@
 <body class="bg-light">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="#">Admin Dashboard</a>
+            <a class="navbar-brand" href="{{ url('/') }}">Admin Dashboard</a>            
             <div class="ms-auto d-flex align-items-center">
                 <span class="text-white me-3">Selamat datang, <strong>{{ Auth::user()->name }}</strong></span>
                 <span id="time" class="text-white me-3"></span>
