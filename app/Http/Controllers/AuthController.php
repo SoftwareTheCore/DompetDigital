@@ -26,14 +26,20 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
+            $user = Auth::user();
+            $role = $user->role;
+
             // Redirect berdasarkan role
-            if (Auth::user()->role === 'admin') {
-                return redirect()->route('admin.dashboard')->with('success', 'Login sebagai Admin berhasil!');
-            } elseif (Auth::user()->role === 'mahasiswa') {
-                return redirect()->route('mahasiswa.dashboard')->with('success', 'Login sebagai Mahasiswa berhasil!');
-            } else {
-                Auth::logout();
-                return redirect()->route('login')->withErrors(['email' => 'Role tidak dikenali.']);
+            switch ($role) {
+                case 'admin':
+                    return redirect()->route('admin.dashboard')->with('success', 'Login sebagai Admin berhasil!');
+                case 'mahasiswa':
+                    return redirect()->route('mahasiswa.dashboard')->with('success', 'Login sebagai Mahasiswa berhasil!');
+                case 'bank mini':
+                    return redirect()->route('staff.dashboard')->with('success', 'Login sebagai Staff Bank Mini berhasil!');
+                default:
+                    Auth::logout();
+                    return redirect()->route('login')->withErrors(['email' => 'Role tidak dikenali.']);
             }
         }
 

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\StaffBankMiniController;
 
 // Home Page Route
 Route::get('/', function () {
@@ -39,4 +40,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/mahasiswa/topup', [MahasiswaController::class, 'topUp'])->name('mahasiswa.topup');
     Route::post('/mahasiswa/transfer', [MahasiswaController::class, 'transfer'])->name('mahasiswa.transfer');
     Route::post('/mahasiswa/withdraw', [MahasiswaController::class, 'withdraw'])->name('mahasiswa.withdraw');
+});
+
+// ROUTE STAFF BANK MINI
+Route::middleware(['auth', 'staff'])->group(function () {
+    Route::get('/staff/dashboard', [StaffBankMiniController::class, 'dashboard'])->name('staff.dashboard');
+    Route::post('/staff/approve/{id}', [StaffBankMiniController::class, 'approve'])->name('staff.approve');
+    Route::post('/staff/reject/{id}', [StaffBankMiniController::class, 'reject'])->name('staff.reject');
 });
