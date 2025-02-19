@@ -1,10 +1,13 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Transaction;
-use App\Models\BankMini;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
+
+// use Illuminate\Support\Facades\DB;
 
 class TransactionController extends Controller
 {
@@ -16,24 +19,42 @@ class TransactionController extends Controller
 
     public function approve($id)
     {
-        $transaction = Transaction::findOrFail($id);
-        $transaction->status = 'approved';
-        $transaction->save();
+        DB::beginTransaction();
+        try {
+            $transaction = Transaction::lockForUpdate()->findOrFail($id);
+            
+            if ($transaction->status !== 'pending') {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'Transaksi sudah diproses sebelumnya.');
+            }
 
-        if ($transaction->type === 'top_up') {
-            $user = User::findOrFail($transaction->user_id);
-            $user->saldo += $transaction->amount;
-            $user->save();
+            if ($transaction->type === 'topup') {
+                $user = User::lockForUpdate()->findOrFail($transaction->user_id);
+                $user->saldo += $transaction->amount;
+                $user->save();
+            }
+
+            $transaction->status = 'approved';
+            $transaction->save();
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Transaksi disetujui dan saldo diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal menyetujui transaksi: ' . $e->getMessage());
         }
-
-        return redirect()->back()->with('success', 'Transaksi disetujui.');
     }
 
     public function reject($id)
     {
         $transaction = Transaction::findOrFail($id);
+        if ($transaction->status !== 'pending') {
+            return redirect()->back()->with('error', 'Transaksi sudah diproses sebelumnya.');
+        }
+
         $transaction->status = 'rejected';
         $transaction->save();
+        
         return redirect()->back()->with('error', 'Transaksi ditolak.');
     }
 }

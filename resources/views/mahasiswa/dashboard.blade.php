@@ -21,24 +21,41 @@
     </nav>
 
     <div class="container mt-4">
-        <!-- Pesan Sukses/Error -->
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
         @if (session('error'))
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
+        @if (session('info'))
+            <div class="alert alert-info">{{ session('info') }}</div>
+        @endif
 
-        <!-- Saldo -->
+        <!-- Saldo Section -->
         <div class="row mb-4">
             <div class="col-md-4">
                 <div class="card text-white bg-success h-100">
                     <div class="card-body">
                         <h5 class="card-title">Saldo Anda</h5>
-                        <p class="card-text h3">Rp {{ number_format($user->saldo, 2, ',', '.') }}</p>
+                        <p class="card-text h3">
+                            Rp {{ number_format(Auth::user()->saldo, 2, ',', '.') }}
+                        </p>
                     </div>
                 </div>
             </div>
+            @if($pendingTopup)
+            <div class="col-md-4">
+                <div class="card text-white bg-warning h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Saldo Pending</h5>
+                        <p class="card-text h3">
+                            Rp {{ number_format(optional($pendingTopup)->amount, 2, ',', '.') }}
+                        </p>
+                        <small>Menunggu persetujuan staff</small>
+                    </div>
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Fitur Transaksi -->
@@ -50,8 +67,15 @@
                         <form action="{{ route('mahasiswa.topup') }}" method="POST">
                             @csrf
                             <input type="number" name="amount" placeholder="Jumlah Top Up" min="10000" class="form-control mb-2" required>
-                            <button type="submit" class="btn btn-primary w-100">Top Up</button>
+                            <button type="submit" class="btn btn-primary w-100" {{ $pendingTopup ? 'disabled' : '' }}>
+                                Top Up
+                            </button>
                         </form>
+                        @if($pendingTopup)
+                            <div class="alert alert-warning mt-2">
+                                <small>Anda memiliki top up pending sebesar Rp {{ number_format(optional($pendingTopup)->amount, 2, ',', '.') }}</small>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -77,49 +101,6 @@
                             <input type="number" name="amount" placeholder="Jumlah Withdraw" min="10000" class="form-control mb-2" required>
                             <button type="submit" class="btn btn-primary w-100">Withdraw</button>
                         </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Riwayat Transaksi -->
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Riwayat Transaksi</h5>
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Tanggal</th>
-                                        <th>Jenis Transaksi</th>
-                                        <th>Jumlah</th>
-                                        <th>Keterangan</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($transaksi as $trans)
-                                        <tr>
-                                            <td>{{ $loop->iteration }}</td>
-                                            <td>{{ $trans->created_at }}</td>
-                                            <td>{{ ucfirst($trans->type) }}</td>
-                                            <td>Rp {{ number_format($trans->amount, 2, ',', '.') }}</td>
-                                            <td>
-                                                @if ($trans->type == 'transfer')
-                                                    Transfer ke {{ $trans->recipient->name ?? 'Tidak Diketahui' }}
-                                                @elseif ($trans->type == 'receive')
-                                                    Diterima dari {{ $trans->user->name ?? 'Tidak Diketahui' }}
-                                                @else
-                                                    {{ ucfirst($trans->type) }}
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
                 </div>
             </div>
